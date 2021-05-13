@@ -87,32 +87,35 @@ function show_hands($array){
             $hand = ["ストレート",6,$face_array[0]];
         }
     }else {
-        if($count_same_suits == 5) $hand = ["フラッシュ",5,$face_array[0]];
-        if($count_same_faces == 4) $hand = ["フォーカード",3,$pair];
-        if ($count_same_faces == 3){
-            if(count($same_faces) == 2) {
-            $hand = ["フルハウス",4,$pair];
-            }else {
-            $hand = ["スリーカード",7,$pair];
+        if($count_same_suits == 5) {
+            $hand = ["フラッシュ",5,$face_array[0]];
+        }else{
+            if($count_same_faces == 4) $hand = ["フォーカード",3,$pair];
+            if ($count_same_faces == 3){
+                if(count($same_faces) == 2) {
+                $hand = ["フルハウス",4,$pair];
+                }else {
+                $hand = ["スリーカード",7,$pair];
+                }
+            } 
+            if($count_same_faces == 2) {
+                if(count($same_faces) == 3){
+                $hand = ["ツーペア",8,$pair];
+                }else{
+                $hand = ["ワンペア",9,$pair];
+                }
             }
-        } 
-        if($count_same_faces == 2) {
-            if(count($same_faces) == 3){
-            $hand = ["ツーペア",8,$pair];
-            }else{
-            $hand = ["ワンペア",9,$pair];
-            }
+            if($count_same_faces == 1) $hand = ["ハイカード",10,$face_array[0]];
         }
-        if($count_same_faces == 1) $hand = ["ハイカード",10,$face_array[0]];
     }
 
     return $hand;
 }
 
-// $test = [['key' => 11, 'face' => 'K', 'suit' => '♠'],
-//         ['key' => 7, 'face' => 9, 'suit' => '♥'],
-//         ['key' => 8, 'face' => 10, 'suit' => '♦'],
-//         ['key' => 2, 'face' => 4, 'suit' => '♣'],
+// $test = [['key' => 6, 'face' => 8, 'suit' => '♠'],
+//         ['key' => 5, 'face' => 7, 'suit' => '♠'],
+//         ['key' => 4, 'face' => 6, 'suit' => ''],
+//         ['key' => 2, 'face' => 4, 'suit' => '♠'],
 //         ['key' => 3, 'face' => 5, 'suit' => '♠']];
 
 // $hand = show_hands(sort_hands($test));
@@ -168,18 +171,18 @@ if($playerHand[1] < $oppHand[1]){
             <?php 
             echo <<<EOM
             相手の手札：
-            {$sorted_cardOpp[0]['face']}{$sorted_cardOpp[0]['suit']}
-            {$sorted_cardOpp[1]['face']}{$sorted_cardOpp[1]['suit']}
-            {$sorted_cardOpp[2]['face']}{$sorted_cardOpp[2]['suit']}
-            {$sorted_cardOpp[3]['face']}{$sorted_cardOpp[3]['suit']}
-            {$sorted_cardOpp[4]['face']}{$sorted_cardOpp[4]['suit']}<br><br>
+            {$sorted_cardOpp[0]['face']}<span>{$sorted_cardOpp[0]['suit']}</span>
+            {$sorted_cardOpp[1]['face']}<span>{$sorted_cardOpp[1]['suit']}</span>
+            {$sorted_cardOpp[2]['face']}<span>{$sorted_cardOpp[2]['suit']}</span>
+            {$sorted_cardOpp[3]['face']}<span>{$sorted_cardOpp[3]['suit']}</span>
+            {$sorted_cardOpp[4]['face']}<span>{$sorted_cardOpp[4]['suit']}</span><br><br>
             「{$oppHand[0]}」<br><br><br>
             自分の手札：
-            {$sorted_cardPlayer[0]['face']}{$sorted_cardPlayer[0]['suit']}
-            {$sorted_cardPlayer[1]['face']}{$sorted_cardPlayer[1]['suit']}
-            {$sorted_cardPlayer[2]['face']}{$sorted_cardPlayer[2]['suit']}
-            {$sorted_cardPlayer[3]['face']}{$sorted_cardPlayer[3]['suit']}
-            {$sorted_cardPlayer[4]['face']}{$sorted_cardPlayer[4]['suit']}<br><br>
+            {$sorted_cardPlayer[0]['face']}<span>{$sorted_cardPlayer[0]['suit']}</span>
+            {$sorted_cardPlayer[1]['face']}<span>{$sorted_cardPlayer[1]['suit']}</span>
+            {$sorted_cardPlayer[2]['face']}<span>{$sorted_cardPlayer[2]['suit']}</span>
+            {$sorted_cardPlayer[3]['face']}<span>{$sorted_cardPlayer[3]['suit']}</span>
+            {$sorted_cardPlayer[4]['face']}<span>{$sorted_cardPlayer[4]['suit']}</span><br><br>
             「{$playerHand[0]}」
             EOM;
             ?>
@@ -191,10 +194,14 @@ if($playerHand[1] < $oppHand[1]){
         <input type="button"  value="もう一度遊ぶ" onclick="koshin()">
     
     </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
     <script>
     function koshin(){
         location.reload();
     }
+
+    $("span:contains('♥')").css("color","red");
+    $("span:contains('♦')").css("color","red");
     </script>
 </body>
 </html>
