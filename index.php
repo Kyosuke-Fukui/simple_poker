@@ -72,57 +72,66 @@ function show_hands($array){
     // echo $face_array[0];
     arsort($same_faces);
     // var_dump($same_faces);
-    $pair =  array_keys($same_faces)[0];
+    $pair =  array_keys($same_faces);
 
-    $hand = [[],[],[]]; //役の名前、役の強さ、同じ役の場合の高い数字
+    $hand = [[],[],[]]; //役の名前、役の強さ、数字５つ（同役ジャッジに使用）
     //ストレート系判定
-    if($count_same_faces==1 && ($face_array[0]-1 == $face_array[1] && $face_array[1]-1 == $face_array[2] && $face_array[2]-1 == $face_array[3] && $face_array[3]-1 == $face_array[4])){
+    if($count_same_faces==1 && (($face_array[0]-1 == $face_array[1] && $face_array[1]-1 == $face_array[2] && $face_array[2]-1 == $face_array[3] && $face_array[3]-1 == $face_array[4]) ||
+    ($face_array[0] == 12 && $face_array[1] == 3 && $face_array[2] == 2 && $face_array[3] == 1 && $face_array[4] == 0))){
         if($count_same_suits == 5){
-            if($face_array[0] == 12){
-                $hand = ["ロイヤルストレートフラッシュ",1,12];
+            if($face_array[0] == 12 && $face_array[1] == 11){
+                $hand = ["ロイヤルストレートフラッシュ",1, $face_array];
             }else {
-                $hand = ["ストレートフラッシュ",2,$face_array[0]];
+                $hand = ["ストレートフラッシュ",2, $face_array];
             }
         }else {
-            $hand = ["ストレート",6,$face_array[0]];
+            $hand = ["ストレート",6, $face_array];
         }
     }else {
         if($count_same_suits == 5) {
-            $hand = ["フラッシュ",5,$face_array[0]];
+            $hand = ["フラッシュ",5, $face_array];
         }else{
-            if($count_same_faces == 4) $hand = ["フォーカード",3,$pair];
+            if($count_same_faces == 4) $hand = ["フォーカード",3, $pair];
             if ($count_same_faces == 3){
                 if(count($same_faces) == 2) {
-                $hand = ["フルハウス",4,$pair];
+                $hand = ["フルハウス",4, $pair];
                 }else {
-                $hand = ["スリーカード",7,$pair];
+                $hand = ["スリーカード",7, $pair];
                 }
             } 
             if($count_same_faces == 2) {
                 if(count($same_faces) == 3){
-                $hand = ["ツーペア",8,$pair];
+                $hand = ["ツーペア",8, $pair];
                 }else{
-                $hand = ["ワンペア",9,$pair];
+                $hand = ["ワンペア",9, $pair];
                 }
             }
-            if($count_same_faces == 1) $hand = ["ハイカード",10,$face_array[0]];
+            if($count_same_faces == 1) $hand = ["ハイカード",10, $face_array];
         }
     }
 
     return $hand;
 }
 
-// $test = [['key' => 6, 'face' => 8, 'suit' => '♠'],
-//         ['key' => 5, 'face' => 7, 'suit' => '♠'],
-//         ['key' => 4, 'face' => 6, 'suit' => ''],
-//         ['key' => 2, 'face' => 4, 'suit' => '♠'],
-//         ['key' => 3, 'face' => 5, 'suit' => '♠']];
+$test = [['key' => 7, 'face' => 'A', 'suit' => '♠'],
+        ['key' => 7, 'face' => 2, 'suit' => '♠'],
+        ['key' => 8, 'face' => 3, 'suit' => ''],
+        ['key' => 5, 'face' => 4, 'suit' => '♠'],
+        ['key' => 3, 'face' => 5, 'suit' => '♠']];
+
+$test2 = [['key' => 8, 'face' => 'A', 'suit' => '♠'],
+        ['key' => 2, 'face' => 2, 'suit' => ''],
+        ['key' => 1, 'face' => 3, 'suit' => '♠'],
+        ['key' => 0, 'face' => 4, 'suit' => '♠'],
+        ['key' => 0, 'face' => 5, 'suit' => '♠']];
 
 // $hand = show_hands(sort_hands($test));
-// var_dump($hand);
-
 $playerHand = show_hands($sorted_cardPlayer);
 $oppHand = show_hands($sorted_cardOpp);
+// $playerHand = show_hands(sort_hands($test));
+// $oppHand = show_hands(sort_hands($test2));
+// var_dump($playerHand);
+// var_dump($oppHand);
 
 $messege;
 //勝敗判定
@@ -131,12 +140,57 @@ if($playerHand[1] < $oppHand[1]){
 }elseif($playerHand[1] > $oppHand[1]){
     $messege = 'あなたの負けです＞＜';
 }else{
-    if($playerHand[2] > $oppHand[2]){
-    $messege = 'あなたの勝ちです！！';
-    }elseif($playerHand[2] < $oppHand[2]){
-    $messege = 'あなたの負けです＞＜';
-    }else{
-    $messege = '引き分けです';
+    //同役判定（ホールデム仕様なので実際には不要な条件文あり）
+    switch ($playerHand[0]) {
+        case 'ストレートフラッシュ':
+        case 'ストレート':
+            if($playerHand[2][0] > $oppHand[2][0]){
+                //自分がA,2,3,4,5のストレートの場合
+                if(($playerHand[2][0] == 12 && $playerHand[2][1] == 3)){
+                    $messege = 'あなたの負けです＞＜';
+                }else{
+                    $messege = 'あなたの勝ちです！！';
+                }
+            }elseif($playerHand[2][0] < $oppHand[2][0]){
+                //相手がA,2,3,4,5のストレートの場合
+                if(($oppHand[2][0] == 12 && $oppHand[2][1] == 3)){
+                    $messege = 'あなたの勝ちです！！';
+                }else{
+                    $messege = 'あなたの負けです＞＜';
+                }
+            }else{
+                //自分がA,2,3,4,5のストレートの場合
+                if(($playerHand[2][0] == 12 && $playerHand[2][1] == 3)){
+                    //相手がA,2,3,4,5のストレートの場合
+                    if(($oppHand[2][0] == 12 && $oppHand[2][1] == 3)){
+                        $messege = '引き分けです';
+                    }else{
+                        $messege = 'あなたの負けです＞＜';
+                    }
+                }else{
+                    //相手がA,2,3,4,5のストレートの場合
+                    if(($oppHand[2][0] == 12 && $oppHand[2][1] == 3)){
+                        $messege = 'あなたの勝ちです！！';
+                    }else{
+                        $messege = '引き分けです';
+                    }
+                }
+            }
+            break;
+
+        default:
+            for ($i=0; $i < count($playerHand[2]); $i++) { 
+                if($playerHand[2][$i] > $oppHand[2][$i]){
+                    $messege = 'あなたの勝ちです！！';
+                    break;
+                }elseif($playerHand[2][$i] < $oppHand[2][$i]){
+                    $messege = 'あなたの負けです＞＜';
+                    break;
+                }else{
+                    $messege = '引き分けです';
+                }
+            }
+            break;
     }
 }
 
